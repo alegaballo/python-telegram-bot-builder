@@ -133,3 +133,4 @@ dmypy.json
 
 # generate file
 bot.py
+config/conf.yml
