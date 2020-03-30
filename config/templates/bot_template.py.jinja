@@ -3,16 +3,35 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                      level=logging.INFO)
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+{% if private %}
+from functools import wraps
 
+whitelist = {{ allowed_users }}
+
+def restricted(func):
+    @wraps(func)
+    def wrapped(update, context, *args, **kwargs):
+        user_id = update.effective_user.id
+        if user_id not in whitelist:
+            print("Unauthorized access denied for {}.".format(user_id))
+            return
+        return func(update, context, *args, **kwargs)
+    return wrapped
+{% endif %}
 
 updater = Updater(token="{{ bot_token }}", use_context=True)
 dispatcher = updater.dispatcher
 
+
 {% for handler in handlers %}
+{% if private %}
+@restricted
+{% endif %}
 def {{ handler.function }}(message, context):
-    context.bot.send_message(chat_id=message.effective_chat.id, text="Define your handler in `bot.py`")
     # TODO: your implementation goes here
+    context.bot.send_message(chat_id=message.effective_chat.id, text="Define your handler in `bot.py`")
     pass
+
 {% endfor %}
 
 {% for handler in cmd_handlers %}
