@@ -28,7 +28,7 @@ dispatcher.add_handler(cmd_handler_{{ loop.index }})
 {%  endfor %}
 
 {% for handler in msg_handlers %}
-msg_handler_{{ loop.index }} = MessageHandler(Filters.text, {{  handler.function }})
+msg_handler_{{ loop.index }} = MessageHandler(Filters.{{ handler.content_type }}, {{  handler.function }})
 dispatcher.add_handler(msg_handler_{{ loop.index }})
 {%  endfor %}
 
