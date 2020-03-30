@@ -1,0 +1,36 @@
+import logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                     level=logging.INFO)
+
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+
+
+updater = Updater(token="{{ bot_token }}", use_context=True)
+dispatcher = updater.dispatcher
+
+{% for handler in handlers %}
+def {{ handler.function }}(message, context):
+    context.bot.send_message(chat_id=message.effective_chat.id, text="Define your handler in `bot.py`")
+    # TODO: your implementation goes here
+    pass
+{% endfor %}
+
+{% for handler in cmd_handlers %}
+    {% if handler is iterable %}
+        {% for cmd in handler.commands %}
+cmd_handler_l_{{ loop.index }} = CommandHandler("{{ cmd }}", {{  handler.function }})
+dispatcher.add_handler(cmd_handler_l_{{ loop.index }})
+        {% endfor %}
+    {% else %}
+cmd_handler_{{ loop.index }} = CommandHandler("{{ cmd }}", {{  handler.function }})
+dispatcher.add_handler(cmd_handler_{{ loop.index }})
+    {% endif %}
+{%  endfor %}
+
+{% for handler in msg_handlers %}
+msg_handler_{{ loop.index }} = MessageHandler(Filters.text, {{  handler.function }})
+dispatcher.add_handler(msg_handler_{{ loop.index }})
+{%  endfor %}
+
+if __name__ == "__main__":
+    updater.start_polling()
