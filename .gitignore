@@ -130,3 +130,6 @@ dmypy.json
 
 # IDE
 .vscode/
+
+# generate file
+bot.py
