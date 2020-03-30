@@ -1,0 +1,24 @@
+bot_token : TokenGoesHere
+private : true
+allowed_users :
+  - 63463424634 # message @userinfobot to get your id
+handlers:
+  - 
+    type : msg
+    filters : 
+    function : somefunction
+    content_type: text # audio, image, video, text, document
+
+  -
+    type : msg
+    filters : 
+    function : some_audio_function
+    content_type: audio
+  - 
+    type : cmd
+    commands :
+      - start
+      - stop
+    function : welcome
+    content_type:
+
