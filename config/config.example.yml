@@ -1,7 +1,7 @@
-bot_token : TokenGoesHere
+bot_token : tokenGoesHere
 private : true
 allowed_users :
-  - 63463424634 # message @userinfobot to get your id
+  - userIdGoesHere # message @userinfobot to get your id
 handlers:
   - 
     type : msg
