@@ -16,7 +16,7 @@ handlers:
     type : msg
     filters : 
     function : some_audio_function
-    content_type: audio
+    content_type : voice
     return_content_type: voice # same as content_type
 
   - 
