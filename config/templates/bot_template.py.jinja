@@ -51,11 +51,21 @@ def {{ handler.function }}(message, context):
 @restricted
 {% endif %}
 def inline_func(message, context):
-    query = update.inline_query.query
+    query = message.inline_query.query
     if not query:
         return
-    result = list()
-    #TODO: fill you result list here
+    results = list()
+    """
+    TODO: fill you result list here
+    more info: https://core.telegram.org/bots/api#inline-mode
+    """
+    results.append(
+        InlineQueryResultArticle(
+            id=query.upper(),
+            title='InlineResponse',
+            description="toUpperCase",
+            input_message_content=InputTextMessageContent(query.upper())
+        ))
     context.bot.answer_inline_query(message.inline_query.id, results)
 
 inline_handler = InlineQueryHandler(inline_func)
