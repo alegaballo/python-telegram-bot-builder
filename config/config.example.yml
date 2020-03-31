@@ -17,12 +17,13 @@ handlers:
     filters : 
     function : some_audio_function
     content_type: audio
+    return_content_type: voice # same as content_type
+
   - 
     type : cmd
     commands :
       - start
       - stop
     function : welcome
-    content_type:
     return_content_type: text # same as content_type
 
