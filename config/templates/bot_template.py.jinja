@@ -38,6 +38,8 @@ def {{ handler.function }}(message, context):
     context.bot.send_message(chat_id=message.effective_chat.id, text="Define your handler in `bot.py`")
     {% else %}
     {% set type_= handler.return_content_type %}
+    # FIXME: remove open for content from URL
+    # e.g. bot.send_photo(chat_id=chat_id, photo='https://telegram.org/img/t_logo.png')
     context.bot.send_{{ type_ }}(chat_id=, {{ type_ }}=open("path/to/{{ type_ }}", "rb"))
     {% endif %}
     pass
