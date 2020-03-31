@@ -1,5 +1,5 @@
-# python-telegram-bot-template
-Template for Telegram bots built with  python-telegram-bot 
+# python-telegram-bot-builder
+Create templates for Telegram bots from a config file
 
 1. Create a bot using [@BotFather](https://telegram.me/BotFather)
 2. Set your bot parameters in `config/conf.yml`
