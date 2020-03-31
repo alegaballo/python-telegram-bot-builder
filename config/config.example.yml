@@ -1,0 +1,29 @@
+bot_token : tokenGoesHere
+private : true
+unknown_cmd_handler : true # implement a default handler for uknown commands
+inline : true # remember to enable inline option in the BotFather using /setinline
+
+allowed_users :
+  - userIdGoesHere # message @userinfobot to get your id
+handlers:
+  - 
+    type : msg
+    filters : 
+    function : somefunction
+    content_type: text # audio, voice, photo, video, text, document
+
+  -
+    type : msg
+    filters : 
+    function : some_audio_function
+    content_type: audio
+    return_content_type: voice # same as content_type
+
+  - 
+    type : cmd
+    commands :
+      - start
+      - stop
+    function : welcome
+    return_content_type: text # same as content_type
+

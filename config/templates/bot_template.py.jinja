@@ -1,0 +1,115 @@
+import logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                     level=logging.INFO)
+
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
+{% if inline %}
+from telegram import InlineQueryResultArticle, InputTextMessageContent
+{% endif %}
+{% if private %}
+from functools import wraps
+
+whitelist = {{ allowed_users }}
+
+def restricted(func):
+    @wraps(func)
+    def wrapped(update, context, *args, **kwargs):
+        user_id = update.effective_user.id
+        if user_id not in whitelist:
+            print("Unauthorized access denied for {}.".format(user_id))
+            return
+        return func(update, context, *args, **kwargs)
+    return wrapped
+{% endif %}
+
+
+
+updater = Updater(token="{{ bot_token }}", use_context=True)
+dispatcher = updater.dispatcher
+
+
+{% for handler in handlers %}
+{% if private %}
+@restricted
+{% endif %}
+def {{ handler.function }}(message, context):
+    # TODO: your implementation goes here
+    {% if handler.return_content_type == "text" or not handler.return_content_type %}
+    context.bot.send_message(chat_id=message.effective_chat.id, text="Define your handler in `bot.py`")
+    {% else %}
+    {% set type_= handler.return_content_type %}
+    # FIXME: remove open for content from URL
+    # e.g. bot.send_photo(chat_id=chat_id, photo='https://telegram.org/img/t_logo.png')
+    context.bot.send_{{ type_ }}(chat_id=message.effective_chat.id, {{ type_ }}=open("path/to/{{ type_ }}", "rb"))
+    {% endif %}
+    pass
+
+{% endfor %}
+
+{% if inline %}
+{% if private %}
+@restricted
+{% endif %}
+def inline_func(message, context):
+    query = message.inline_query.query
+    if not query:
+        return
+    results = list()
+    """
+    TODO: fill you result list here
+    more info: https://core.telegram.org/bots/api#inline-mode
+    """
+    results.append(
+        InlineQueryResultArticle(
+            id=query.upper(),
+            title='InlineResponse',
+            description="toUpperCase",
+            input_message_content=InputTextMessageContent(query.upper())
+        ))
+    context.bot.answer_inline_query(message.inline_query.id, results)
+
+inline_handler = InlineQueryHandler(inline_func)
+dispatcher.add_handler(inline_handler)
+{% endif %}
+
+{% for handler in cmd_handlers %}
+    {% if handler is iterable %}
+        {% for cmd in handler.commands %}
+cmd_handler_l_{{ loop.index }} = CommandHandler("{{ cmd }}", {{  handler.function }})
+dispatcher.add_handler(cmd_handler_l_{{ loop.index }})
+        {% endfor %}
+    {% else %}
+cmd_handler_{{ loop.index }} = CommandHandler("{{ cmd }}", {{  handler.function }})
+dispatcher.add_handler(cmd_handler_{{ loop.index }})
+    {% endif %}
+{%  endfor %}
+
+{% if unknown_cmd_handler %}
+"""
+Note: This handler must be added last (last of the CommandHandler). 
+If you added it sooner, it would be triggered before the CommandHandlers 
+had a chance to  look at the update.
+"""
+{% if private %}
+@restricted
+{% endif %}
+def uknown_cmd_handler(message, context):
+        context.bot.send_message(chat_id=message.effective_chat.id, text="Sorry, I didn't understand that command.")
+
+unknown_handler = MessageHandler(Filters.command, uknown_cmd_handler)
+dispatcher.add_handler(unknown_handler)
+{% endif %}
+
+
+{% for handler in msg_handlers %}
+{% if handler.content_type %}
+    {% set content_type = handler.content_type %}
+{%else%}
+    {% set content_type="text" %}
+{% endif %}
+msg_handler_{{ loop.index }} = MessageHandler(Filters.{{ content_type }}, {{  handler.function }})
+dispatcher.add_handler(msg_handler_{{ loop.index }})
+{%  endfor %}
+
+if __name__ == "__main__":
+    updater.start_polling()
