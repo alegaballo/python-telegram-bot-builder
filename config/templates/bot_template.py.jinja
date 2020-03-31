@@ -40,7 +40,7 @@ def {{ handler.function }}(message, context):
     {% set type_= handler.return_content_type %}
     # FIXME: remove open for content from URL
     # e.g. bot.send_photo(chat_id=chat_id, photo='https://telegram.org/img/t_logo.png')
-    context.bot.send_{{ type_ }}(chat_id=, {{ type_ }}=open("path/to/{{ type_ }}", "rb"))
+    context.bot.send_{{ type_ }}(chat_id=message.effective_chat.id, {{ type_ }}=open("path/to/{{ type_ }}", "rb"))
     {% endif %}
     pass
 
@@ -102,7 +102,12 @@ dispatcher.add_handler(unknown_handler)
 
 
 {% for handler in msg_handlers %}
-msg_handler_{{ loop.index }} = MessageHandler(Filters.{{ handler.content_type }}, {{  handler.function }})
+{% if handler.content_type %}
+    {% set content_type = handler.content_type %}
+{%else%}
+    {% set content_type="text" %}
+{% endif %}
+msg_handler_{{ loop.index }} = MessageHandler(Filters.{{ content_type }}, {{  handler.function }})
 dispatcher.add_handler(msg_handler_{{ loop.index }})
 {%  endfor %}
 
